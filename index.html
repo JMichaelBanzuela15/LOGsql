@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log Beautifier</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <h1>Make your logs readable</h1>
+
+  <div class="input-section">
+    <h3>Paste Logs Below:</h3>
+    <textarea id="logInput" placeholder="Paste raw logs here..."></textarea>
+    <button id="formatBtn"> Format Logs</button>
+  </div>
+
+  <hr>
+
+  <div class="upload-section">
+    <h3>Or Upload Log File:</h3>
+    <form id="uploadForm" enctype="multipart/form-data">
+      <input type="file" name="logfile" accept=".txt,.log">
+      <button type="submit">📁 Upload & Parse</button>
+    </form>
+  </div>
+
+  <hr>
+
+  <div class="controls">
+    <input type="text" id="searchInput" placeholder="🔍 Filter logs...">
+    <button id="copyBtn">📋 Copy</button>
+    <button id="downloadBtn">⬇️ Download CSV</button>
+  </div>
+
+  <div id="summary"></div>
+  <div id="output"></div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
