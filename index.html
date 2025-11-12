@@ -1,41 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Log Beautifier</title>
-  <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-  <h1>Make your logs readable</h1>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LOGS RGBI</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <h1>Make your logs readable</h1>
 
-  <div class="input-section">
-    <h3>Paste Logs Below:</h3>
-    <textarea id="logInput" placeholder="Paste raw logs here..."></textarea>
-    <button id="formatBtn"> Format Logs</button>
-  </div>
+    <!-- Tab Switcher -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="sql">🗄️ SQL Logs</button>
+      <button class="tab-btn" data-tab="wallet">💳 DIGIPEP Wallet Logs</button>
+    </div>
 
-  <hr>
+    <!-- SQL LOGS TAB -->
+    <div id="sql-tab" class="tab-content active">
+      <div class="input-section">
+        <h3>Paste SQL Logs Below:</h3>
+        <textarea id="logInput" placeholder="Paste raw SQL logs here..."></textarea>
+        <button id="formatBtn">Format Logs</button>
+      </div>
 
-  <div class="upload-section">
-    <h3>Or Upload Log File:</h3>
-    <form id="uploadForm" enctype="multipart/form-data">
-      <input type="file" name="logfile" accept=".txt,.log">
-      <button type="submit">📁 Upload & Parse</button>
-    </form>
-  </div>
+      <hr />
 
-  <hr>
+      <div class="upload-section">
+        <h3>Or Upload Log File:</h3>
+        <form id="uploadForm" enctype="multipart/form-data">
+          <input type="file" name="logfile" accept=".txt,.log" />
+          <button type="submit">📁 Upload & Parse</button>
+        </form>
+      </div>
 
-  <div class="controls">
-    <input type="text" id="searchInput" placeholder="🔍 Filter logs...">
-    <button id="copyBtn">📋 Copy</button>
-    <button id="downloadBtn">⬇️ Download CSV</button>
-  </div>
+      <hr />
 
-  <div id="summary"></div>
-  <div id="output"></div>
+      <div class="controls">
+        <input type="text" id="searchInput" placeholder="🔍 Filter logs..." />
+        <button id="copyBtn">📋 Copy</button>
+        <button id="downloadBtn">⬇️ Download CSV</button>
+      </div>
 
-  <script src="js/app.js"></script>
-</body>
+      <div id="summary"></div>
+      <div id="output"></div>
+    </div>
+
+    <!-- DIGIPEP WALLET LOGS TAB -->
+    <div id="wallet-tab" class="tab-content">
+      <div class="input-section">
+        <h3>Paste DIGIPEP Wallet Logs Below:</h3>
+        <textarea id="walletLogInput" placeholder="Paste DIGIPEP wallet logs here...&#10;&#10;Example:&#10;[2025-11-10 11:20:30] production.DEBUG: CREATE DIGIPEP WALLET FULL REQUEST BODY..."></textarea>
+        <button id="formatWalletBtn">Format Wallet Logs</button>
+      </div>
+
+      <hr />
+
+      <div class="upload-section">
+        <h3>Or Upload Wallet Log File:</h3>
+        <form id="uploadWalletForm" enctype="multipart/form-data">
+          <input type="file" name="logfile" accept=".txt,.log" />
+          <button type="submit">📁 Upload & Parse</button>
+        </form>
+      </div>
+
+      <hr />
+
+      <div class="controls">
+        <input type="text" id="searchWalletInput" placeholder="🔍 Filter wallet logs..." />
+        <button id="copyWalletBtn">📋 Copy</button>
+        <button id="downloadWalletBtn">⬇️ Download CSV</button>
+      </div>
+
+      <div id="walletSummary"></div>
+      <div id="walletOutput"></div>
+    </div>
+
+    <script src="js/app.js"></script>
+  </body>
 </html>
