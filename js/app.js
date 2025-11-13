@@ -13,16 +13,46 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   });
 });
 
+// ========== LOADING SPINNER ==========
+
+function showSpinner(message = "Processing...") {
+  const spinner = document.createElement('div');
+  spinner.className = 'spinner-overlay';
+  spinner.id = 'loadingSpinner';
+  spinner.innerHTML = `
+    <div style="text-align: center;">
+      <div class="spinner"></div>
+      <div class="spinner-text">${message}</div>
+    </div>
+  `;
+  document.body.appendChild(spinner);
+}
+
+function hideSpinner() {
+  const spinner = document.getElementById('loadingSpinner');
+  if (spinner) {
+    spinner.remove();
+  }
+}
+
 // ========== SQL LOGS PARSER ==========
 
 async function parseLogs(logs) {
-  const response = await fetch("parser.php", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: "logs=" + encodeURIComponent(logs) + "&mode=sql",
-  });
-  const data = await response.json();
-  displayTable(data);
+  showSpinner("Parsing SQL logs...");
+  
+  try {
+    const response = await fetch("parser.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: "logs=" + encodeURIComponent(logs) + "&mode=sql",
+    });
+    const data = await response.json();
+    displayTable(data);
+  } catch (error) {
+    alert("❌ Error parsing logs: " + error.message);
+  } finally {
+    hideSpinner();
+  }
 }
 
 document.getElementById("formatBtn").addEventListener("click", () => {
@@ -33,11 +63,19 @@ document.getElementById("formatBtn").addEventListener("click", () => {
 
 document.getElementById("uploadForm").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const formData = new FormData(e.target);
-  formData.append('mode', 'sql');
-  const response = await fetch("parser.php", { method: "POST", body: formData });
-  const data = await response.json();
-  displayTable(data);
+  showSpinner("Uploading and parsing file...");
+  
+  try {
+    const formData = new FormData(e.target);
+    formData.append('mode', 'sql');
+    const response = await fetch("parser.php", { method: "POST", body: formData });
+    const data = await response.json();
+    displayTable(data);
+  } catch (error) {
+    alert("❌ Error: " + error.message);
+  } finally {
+    hideSpinner();
+  }
 });
 
 function displayTable(data) {
@@ -59,8 +97,9 @@ function displayTable(data) {
   `;
 
   let html = `<table><thead><tr>
-    <th>Date</th><th>Status</th><th>InstrId</th><th>TxId</th><th>CdtrAcctId</th>
-    <th>DbtrNm</th><th>DbtrAcctId</th><th>TxSts</th><th>Rsn</th><th>MrchntCtgyCd</th>
+    <th>Date</th><th>Status</th><th>InstrId</th><th>TxId</th><th>Amount</th>
+    <th>CdtrNm</th><th>CdtrAcctId</th><th>DbtrNm</th><th>DbtrAcctId</th>
+    <th>TxSts</th><th>Rsn</th><th>MrchntCtgyCd</th><th>MsgId</th>
   </tr></thead><tbody>`;
 
   data.forEach(row => {
@@ -69,12 +108,15 @@ function displayTable(data) {
       <td style="color:${row.Color}; font-weight:600;">${row.Status}</td>
       <td>${row.InstrId || '—'}</td>
       <td>${row.TxId || '—'}</td>
+      <td>${row.Amount || '—'}</td>
+      <td>${row.CdtrNm || '—'}</td>
       <td>${row.CdtrAcctId || '—'}</td>
       <td>${row.DbtrNm || '—'}</td>
       <td>${row.DbtrAcctId || '—'}</td>
       <td>${row.TxSts || '—'}</td>
       <td>${row.Rsn || '—'}</td>
       <td>${row.MrchntCtgyCd || '—'}</td>
+      <td>${row.MsgId || '—'}</td>
     </tr>`;
   });
 
@@ -88,6 +130,8 @@ document.getElementById("searchInput").addEventListener("input", (e) => {
   document.querySelectorAll("#output table tbody tr").forEach(tr => {
     tr.style.display = tr.textContent.toLowerCase().includes(filter) ? "" : "none";
   });
+  
+  updateVisibleCount();
 });
 
 // Copy SQL logs
@@ -114,13 +158,21 @@ document.getElementById("downloadBtn").addEventListener("click", () => {
 // ========== DIGIPEP WALLET PARSER ==========
 
 async function parseWalletLogs(logs) {
-  const response = await fetch("parser.php", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: "logs=" + encodeURIComponent(logs) + "&mode=wallet",
-  });
-  const data = await response.json();
-  displayWalletTable(data);
+  showSpinner("Parsing wallet logs...");
+  
+  try {
+    const response = await fetch("parser.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: "logs=" + encodeURIComponent(logs) + "&mode=wallet",
+    });
+    const data = await response.json();
+    displayWalletTable(data);
+  } catch (error) {
+    alert("❌ Error parsing wallet logs: " + error.message);
+  } finally {
+    hideSpinner();
+  }
 }
 
 document.getElementById("formatWalletBtn").addEventListener("click", () => {
@@ -131,11 +183,19 @@ document.getElementById("formatWalletBtn").addEventListener("click", () => {
 
 document.getElementById("uploadWalletForm").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const formData = new FormData(e.target);
-  formData.append('mode', 'wallet');
-  const response = await fetch("parser.php", { method: "POST", body: formData });
-  const data = await response.json();
-  displayWalletTable(data);
+  showSpinner("Uploading and parsing wallet file...");
+  
+  try {
+    const formData = new FormData(e.target);
+    formData.append('mode', 'wallet');
+    const response = await fetch("parser.php", { method: "POST", body: formData });
+    const data = await response.json();
+    displayWalletTable(data);
+  } catch (error) {
+    alert("❌ Error: " + error.message);
+  } finally {
+    hideSpinner();
+  }
 });
 
 function displayWalletTable(data) {
@@ -203,3 +263,138 @@ document.getElementById("downloadWalletBtn").addEventListener("click", () => {
   a.download = "wallet_logs.csv";
   a.click();
 });
+
+// ========== QUICK FILTER BUTTONS ==========
+
+function quickFilter(status) {
+  const searchInput = document.getElementById("searchInput");
+  
+  if (status === 'all') {
+    searchInput.value = '';
+  } else {
+    searchInput.value = status;
+  }
+  
+  // Trigger the search
+  const event = new Event('input');
+  searchInput.dispatchEvent(event);
+  
+  // Update button active state
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  
+  // Add active to clicked button
+  if (status === 'all') {
+    document.querySelector('.filter-btn').classList.add('active');
+  } else {
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      if (btn.textContent.includes(status)) {
+        btn.classList.add('active');
+      }
+    });
+  }
+}
+
+// ========== CLEAR BUTTONS ==========
+
+document.getElementById("clearBtn").addEventListener("click", () => {
+  if (confirm("🗑️ Clear all SQL logs?")) {
+    document.getElementById("logInput").value = '';
+    document.getElementById("output").innerHTML = '';
+    document.getElementById("summary").innerHTML = '';
+    document.getElementById("searchInput").value = '';
+    document.getElementById("startDate").value = '';
+    document.getElementById("endDate").value = '';
+  }
+});
+
+document.getElementById("clearWalletBtn").addEventListener("click", () => {
+  if (confirm("🗑️ Clear all wallet logs?")) {
+    document.getElementById("walletLogInput").value = '';
+    document.getElementById("walletOutput").innerHTML = '';
+    document.getElementById("walletSummary").innerHTML = '';
+    document.getElementById("searchWalletInput").value = '';
+  }
+});
+
+// ========== DATE RANGE FILTER ==========
+
+function filterByDateRange() {
+  const startDate = document.getElementById("startDate").value;
+  const endDate = document.getElementById("endDate").value;
+  
+  if (!startDate || !endDate) {
+    alert("⚠️ Please select both start and end dates!");
+    return;
+  }
+  
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  
+  if (start > end) {
+    alert("⚠️ Start date must be before end date!");
+    return;
+  }
+  
+  let visibleCount = 0;
+  
+  document.querySelectorAll("#output table tbody tr").forEach(tr => {
+    const dateCell = tr.children[0].textContent; // First column is Date
+    if (!dateCell || dateCell === '—') {
+      tr.style.display = "none";
+      return;
+    }
+    
+    const rowDate = new Date(dateCell.split(' ')[0]); // Extract just the date part
+    
+    if (rowDate >= start && rowDate <= end) {
+      tr.style.display = "";
+      visibleCount++;
+    } else {
+      tr.style.display = "none";
+    }
+  });
+  
+  // Update summary
+  const totalRows = document.querySelectorAll("#output table tbody tr").length;
+  const summaryEl = document.getElementById("summary");
+  const currentSummary = summaryEl.innerHTML.split('<br>')[0];
+  summaryEl.innerHTML = `${currentSummary}<br><small>📅 Showing ${visibleCount} of ${totalRows} logs (${startDate} to ${endDate})</small>`;
+}
+
+function clearDateFilter() {
+  document.getElementById("startDate").value = '';
+  document.getElementById("endDate").value = '';
+  
+  // Show all rows
+  document.querySelectorAll("#output table tbody tr").forEach(tr => {
+    tr.style.display = "";
+  });
+  
+  // Reset summary
+  const data = Array.from(document.querySelectorAll("#output table tbody tr"));
+  let success = 0, failed = 0, deadlock = 0;
+  
+  data.forEach(tr => {
+    const status = tr.children[1].textContent;
+    if (status === 'Accepted') success++;
+    else if (status === 'Failed') failed++;
+    else if (status === 'Deadlock') deadlock++;
+  });
+  
+  document.getElementById("summary").innerHTML = `
+    <p><b>Summary:</b> ✅ Accepted: ${success}, ❌ Failed: ${failed}, ⚠️ Deadlock: ${deadlock} | Total: ${data.length}</p>
+  `;
+}
+
+function updateVisibleCount() {
+  const visibleRows = document.querySelectorAll("#output table tbody tr:not([style*='display: none'])").length;
+  const totalRows = document.querySelectorAll("#output table tbody tr").length;
+  
+  if (visibleRows < totalRows) {
+    const summaryEl = document.getElementById("summary");
+    const currentSummary = summaryEl.innerHTML.split('<br>')[0];
+    summaryEl.innerHTML = `${currentSummary}<br><small>🔍 Showing ${visibleRows} of ${totalRows} logs</small>`;
+  }
+}

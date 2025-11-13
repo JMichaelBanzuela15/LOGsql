@@ -11,8 +11,8 @@
 
     <!-- Tab Switcher -->
     <div class="tabs">
-      <button class="tab-btn active" data-tab="sql">🗄️ SQL Logs</button>
-      <button class="tab-btn" data-tab="wallet">💳 DIGIPEP Wallet Logs</button>
+      <button class="tab-btn active" data-tab="sql">SQL Logs</button>
+      <button class="tab-btn" data-tab="wallet"> DIGIPEP Wallet Logs</button>
     </div>
 
     <!-- SQL LOGS TAB -->
@@ -20,7 +20,7 @@
       <div class="input-section">
         <h3>Paste SQL Logs Below:</h3>
         <textarea id="logInput" placeholder="Paste raw SQL logs here..."></textarea>
-        <button id="formatBtn">Format Logs</button>
+        <button id="formatBtn"> Format Logs</button>
       </div>
 
       <hr />
@@ -29,16 +29,39 @@
         <h3>Or Upload Log File:</h3>
         <form id="uploadForm" enctype="multipart/form-data">
           <input type="file" name="logfile" accept=".txt,.log" />
-          <button type="submit">📁 Upload & Parse</button>
+          <button type="submit">Upload & Parse</button>
         </form>
       </div>
 
       <hr />
 
-      <div class="controls">
-        <input type="text" id="searchInput" placeholder="🔍 Filter logs..." />
-        <button id="copyBtn">📋 Copy</button>
-        <button id="downloadBtn">⬇️ Download CSV</button>
+      <!-- Quick Filter Buttons -->
+      <div class="quick-filters">
+        <button class="filter-btn active" onclick="quickFilter('all')">🔄 Show All</button>
+        <button class="filter-btn filter-success-message" onclick="quickFilter('Success Message')">✅ Success Message</button>
+        <button class="filter-btn filter-accepted" onclick="quickFilter('Accepted')">✅ Accepted</button>
+        <button class="filter-btn filter-failed" onclick="quickFilter('Failed')">❌ Failed</button>
+        <button class="filter-btn filter-deadlock" onclick="quickFilter('Deadlock')">⚠️ Deadlock</button>
+      </div>
+
+      <!-- Date Range Filter -->
+      <div class="date-range-filter">
+        <label>📅 Date Range:</label>
+        <input type="date" id="startDate">
+        <label>to</label>
+        <input type="date" id="endDate">
+        <button onclick="filterByDateRange()">Jump to Date</button>
+        <button onclick="clearDateFilter()">Reset Date</button>
+      </div>
+
+      <!-- Search and Action Buttons -->
+      <div class="action-bar">
+        <input type="text" id="searchInput" placeholder="🔍 Search logs..." />
+        <div class="action-buttons">
+          <button id="copyBtn" class="btn-secondary">📋 Copy</button>
+          <button id="downloadBtn" class="btn-secondary">⬇️ Download CSV</button>
+          <button id="clearBtn" class="btn-danger">🗑️ Clear All</button>
+        </div>
       </div>
 
       <div id="summary"></div>
@@ -50,7 +73,7 @@
       <div class="input-section">
         <h3>Paste DIGIPEP Wallet Logs Below:</h3>
         <textarea id="walletLogInput" placeholder="Paste DIGIPEP wallet logs here...&#10;&#10;Example:&#10;[2025-11-10 11:20:30] production.DEBUG: CREATE DIGIPEP WALLET FULL REQUEST BODY..."></textarea>
-        <button id="formatWalletBtn">Format Wallet Logs</button>
+        <button id="formatWalletBtn"> Format Wallet Logs</button>
       </div>
 
       <hr />
@@ -59,16 +82,20 @@
         <h3>Or Upload Wallet Log File:</h3>
         <form id="uploadWalletForm" enctype="multipart/form-data">
           <input type="file" name="logfile" accept=".txt,.log" />
-          <button type="submit">📁 Upload & Parse</button>
+          <button type="submit">Upload & Parse</button>
         </form>
       </div>
 
       <hr />
 
-      <div class="controls">
-        <input type="text" id="searchWalletInput" placeholder="🔍 Filter wallet logs..." />
-        <button id="copyWalletBtn">📋 Copy</button>
-        <button id="downloadWalletBtn">⬇️ Download CSV</button>
+      <!-- Search and Action Buttons -->
+      <div class="action-bar">
+        <input type="text" id="searchWalletInput" placeholder="🔍 Search wallet logs..." />
+        <div class="action-buttons">
+          <button id="copyWalletBtn" class="btn-secondary">📋 Copy</button>
+          <button id="downloadWalletBtn" class="btn-secondary">⬇️ Download CSV</button>
+          <button id="clearWalletBtn" class="btn-danger">🗑️ Clear All</button>
+        </div>
       </div>
 
       <div id="walletSummary"></div>

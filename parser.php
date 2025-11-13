@@ -14,29 +14,27 @@ if (isset($_FILES['logfile'])) {
 // Get mode (sql or wallet)
 $mode = $_POST['mode'] ?? 'sql';
 
-$lines = explode("\n", $raw);
 $results = [];
 
 if ($mode === 'wallet') {
     // ========== DIGIPEP WALLET PARSER ==========
+    $lines = explode("\n", $raw);
+    
     foreach ($lines as $line) {
         if (stripos($line, 'CREATE DIGIPEP WALLET') === false) {
             continue;
         }
 
-        // Extract timestamp [2025-11-10 11:20:30]
         $timestamp = '';
         if (preg_match("/\[(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})\]/", $line, $tsMatch)) {
             $timestamp = $tsMatch[1];
         }
 
-        // Extract contact number from the log line (09888881316)
         $contactFromLog = '';
         if (preg_match("/\((\d{11})/", $line, $contactMatch)) {
             $contactFromLog = $contactMatch[1];
         }
 
-        // Manual extraction using regex (works even with huge base64 data)
         $fields = [];
         
         if (preg_match('/"wallet_contact_number":"([^"]+)"/', $line, $m)) {
@@ -79,68 +77,223 @@ if ($mode === 'wallet') {
         }
     }
 } else {
-    // ========== SQL LOGS PARSER ==========
-    foreach ($lines as $line) {
-        if (preg_match("/CALL sp_instapayInwardTransactionMerchant/", $line)) {
-            // Extract date
-            preg_match("/(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}(?:\s*(?:AM|PM))?)/", $line, $date);
-            
-            // Determine status
-            preg_match("/Deadlock|operation failed|Accepted/i", $line, $status);
-
-            $statusText = isset($status[0]) ? ucfirst(strtolower($status[0])) : 'Unknown';
-            $statusColor = match (true) {
-                stripos($statusText, 'Accepted') !== false => 'green',
-                stripos($statusText, 'Deadlock') !== false => 'orange',
-                stripos($statusText, 'failed') !== false => 'red',
-                default => 'gray'
-            };
-
-            // Extract JSON data
-            if (preg_match("/'(\{[^}]+\})'/", $line, $jsonMatch)) {
+    // ========== SQL LOGS PARSER - PARSE ALL LOG TYPES ==========
+    
+    // Split by >>>>> markers to get individual log entries
+    $entries = preg_split('/(?=>{5}\s+\d{4}-\d{2}-\d{2})/', $raw, -1, PREG_SPLIT_NO_EMPTY);
+    
+    foreach ($entries as $entry) {
+        if (trim($entry) === '' || trim($entry) === '--') continue;
+        
+        // Extract timestamp
+        $timestamp = '';
+        if (preg_match('/>{5}\s+(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}(?:\s*(?:AM|PM))?)/', $entry, $dateMatch)) {
+            $timestamp = $dateMatch[1];
+        }
+        
+        // Extract log type and module
+        $logType = 'Unknown';
+        if (preg_match('/\|\s+([^\s]+(?:\s+>\s+[^\s]+)*)\s+---\s+WARNING/', $entry, $typeMatch)) {
+            $logType = $typeMatch[1];
+        }
+        
+        // Determine base status
+        $statusText = 'Info';
+        $statusColor = 'blue';
+        
+        if (stripos($entry, 'Deadlock') !== false) {
+            $statusText = 'Deadlock';
+            $statusColor = 'orange';
+        } elseif (stripos($entry, 'operation failed') !== false || stripos($entry, 'ERROR') !== false) {
+            $statusText = 'Failed';
+            $statusColor = 'red';
+        } elseif (stripos($entry, 'Accepted') !== false || stripos($entry, 'Success') !== false || stripos($entry, 'successful') !== false) {
+            $statusText = 'Accepted';
+            $statusColor = 'green';
+        }
+        
+        // TYPE 1: SQL CALL Transactions
+        if (stripos($entry, 'CALL sp_instapayInwardTransactionMerchant') !== false) {
+            if (preg_match("/'(\{[^}]+\})'/", $entry, $jsonMatch)) {
                 $jsonStr = $jsonMatch[1];
+                $jsonStr = str_replace('\"', '"', $jsonStr);
                 $data = json_decode($jsonStr, true);
                 
                 if ($data) {
                     $results[] = [
-                        'Date' => $date[1] ?? '',
+                        'Date' => $timestamp,
                         'Status' => $statusText,
                         'Color' => $statusColor,
                         'InstrId' => $data['InstrId'] ?? '',
                         'TxId' => $data['TxId'] ?? '',
+                        'Amount' => $data['IntrBkSttlmAmt'] ?? '',
+                        'CdtrNm' => $data['CdtrNm'] ?? '',
                         'CdtrAcctId' => $data['CdtrAcctId'] ?? '',
                         'DbtrNm' => $data['DbtrNm'] ?? '',
                         'DbtrAcctId' => $data['DbtrAcctId'] ?? '',
                         'TxSts' => $data['TxSts'] ?? '',
                         'Rsn' => $data['Rsn'] ?? '',
-                        'MrchntCtgyCd' => $data['MrchntCtgyCd'] ?? ''
+                        'MrchntCtgyCd' => $data['MrchntCtgyCd'] ?? '',
+                        'MsgId' => $data['MsgId'] ?? ''
                     ];
                     continue;
                 }
             }
-            
-            // Fallback for non-JSON format
-            preg_match("/'InstrId':\\s*'([^']+)'/", $line, $instr);
-            preg_match("/'TxId':\\s*'([^']+)'/", $line, $txid);
-            preg_match("/'CdtrAcctId':\\s*'([^']+)'/", $line, $cdtrAcct);
-            preg_match("/'DbtrNm':\\s*'([^']+)'/", $line, $dbtrNm);
-            preg_match("/'DbtrAcctId':\\s*'([^']+)'/", $line, $dbtrAcct);
-            preg_match("/'TxSts':\\s*'([^']+)'/", $line, $txsts);
-            preg_match("/'Rsn':\\s*'([^']+)'/", $line, $rsn);
-            preg_match("/'MrchntCtgyCd':\\s*'([^']+)'/", $line, $mcc);
-
+        }
+        
+        // TYPE 2: API Inward XML Data
+        if (stripos($entry, 'APILog: Inward XML Data:') !== false) {
+            if (preg_match("/APILog: Inward XML Data:\s*\{(.+?)\}/s", $entry, $dataMatch)) {
+                $dictStr = '{' . $dataMatch[1] . '}';
+                
+                $fields = [];
+                if (preg_match("/'InstrId':\s*'([^']+)'/", $dictStr, $m)) $fields['InstrId'] = $m[1];
+                if (preg_match("/'TxId':\s*'([^']+)'/", $dictStr, $m)) $fields['TxId'] = $m[1];
+                if (preg_match("/'IntrBkSttlmAmt':\s*'([^']+)'/", $dictStr, $m)) $fields['Amount'] = $m[1];
+                if (preg_match("/'CdtrNm':\s*'([^']+)'/", $dictStr, $m)) $fields['CdtrNm'] = $m[1];
+                if (preg_match("/'CdtrAcctId':\s*'([^']+)'/", $dictStr, $m)) $fields['CdtrAcctId'] = $m[1];
+                if (preg_match("/'DbtrNm':\s*'([^']+)'/", $dictStr, $m)) $fields['DbtrNm'] = $m[1];
+                if (preg_match("/'DbtrAcctId':\s*'([^']+)'/", $dictStr, $m)) $fields['DbtrAcctId'] = $m[1];
+                if (preg_match("/'TxSts':\s*'([^']+)'/", $dictStr, $m)) $fields['TxSts'] = $m[1];
+                if (preg_match("/'Rsn':\s*'([^']+)'/", $dictStr, $m)) $fields['Rsn'] = $m[1];
+                if (preg_match("/'MrchntCtgyCd':\s*'([^']+)'/", $dictStr, $m)) $fields['MrchntCtgyCd'] = $m[1];
+                if (preg_match("/'MsgId':\s*'([^']+)'/", $dictStr, $m)) $fields['MsgId'] = $m[1];
+                
+                if (!empty($fields)) {
+                    $results[] = [
+                        'Date' => $timestamp,
+                        'Status' => $statusText,
+                        'Color' => $statusColor,
+                        'InstrId' => $fields['InstrId'] ?? '',
+                        'TxId' => $fields['TxId'] ?? '',
+                        'Amount' => $fields['Amount'] ?? '',
+                        'CdtrNm' => $fields['CdtrNm'] ?? '',
+                        'CdtrAcctId' => $fields['CdtrAcctId'] ?? '',
+                        'DbtrNm' => $fields['DbtrNm'] ?? '',
+                        'DbtrAcctId' => $fields['DbtrAcctId'] ?? '',
+                        'TxSts' => $fields['TxSts'] ?? '',
+                        'Rsn' => $fields['Rsn'] ?? '',
+                        'MrchntCtgyCd' => $fields['MrchntCtgyCd'] ?? '',
+                        'MsgId' => $fields['MsgId'] ?? ''
+                    ];
+                    continue;
+                }
+            }
+        }
+        
+        // TYPE 3: InstapayISO20022SuccessMessage Data
+        if (stripos($entry, 'InstapayISO20022SuccessMessage Data:') !== false) {
+            if (preg_match("/InstapayISO20022SuccessMessage Data:\s*\{(.+?)\}/s", $entry, $dataMatch)) {
+                $dictStr = '{' . $dataMatch[1] . '}';
+                
+                $fields = [];
+                if (preg_match("/'InstrId':\s*'([^']+)'/", $dictStr, $m)) $fields['InstrId'] = $m[1];
+                if (preg_match("/'TxId':\s*'([^']+)'/", $dictStr, $m)) $fields['TxId'] = $m[1];
+                if (preg_match("/'IntrBkSttlmAmt':\s*'([^']+)'/", $dictStr, $m)) $fields['Amount'] = $m[1];
+                if (preg_match("/'CdtrNm':\s*'([^']+)'/", $dictStr, $m)) $fields['CdtrNm'] = $m[1];
+                if (preg_match("/'CdtrAcctId':\s*'([^']+)'/", $dictStr, $m)) $fields['CdtrAcctId'] = $m[1];
+                if (preg_match("/'DbtrNm':\s*'([^']+)'/", $dictStr, $m)) $fields['DbtrNm'] = $m[1];
+                if (preg_match("/'DbtrAcctId':\s*'([^']+)'/", $dictStr, $m)) $fields['DbtrAcctId'] = $m[1];
+                if (preg_match("/'TxSts':\s*'([^']+)'/", $dictStr, $m)) $fields['TxSts'] = $m[1];
+                if (preg_match("/'Rsn':\s*'([^']+)'/", $dictStr, $m)) $fields['Rsn'] = $m[1];
+                if (preg_match("/'MrchntCtgyCd':\s*'([^']+)'/", $dictStr, $m)) $fields['MrchntCtgyCd'] = $m[1];
+                if (preg_match("/'MsgId':\s*'([^']+)'/", $dictStr, $m)) $fields['MsgId'] = $m[1];
+                
+                if (!empty($fields)) {
+                    $results[] = [
+                        'Date' => $timestamp,
+                        'Status' => 'Success Message',
+                        'Color' => 'green',
+                        'InstrId' => $fields['InstrId'] ?? '',
+                        'TxId' => $fields['TxId'] ?? '',
+                        'Amount' => $fields['Amount'] ?? '',
+                        'CdtrNm' => $fields['CdtrNm'] ?? '',
+                        'CdtrAcctId' => $fields['CdtrAcctId'] ?? '',
+                        'DbtrNm' => $fields['DbtrNm'] ?? '',
+                        'DbtrAcctId' => $fields['DbtrAcctId'] ?? '',
+                        'TxSts' => $fields['TxSts'] ?? '',
+                        'Rsn' => $fields['Rsn'] ?? '',
+                        'MrchntCtgyCd' => $fields['MrchntCtgyCd'] ?? '',
+                        'MsgId' => $fields['MsgId'] ?? ''
+                    ];
+                    continue;
+                }
+            }
+        }
+        
+        // TYPE 4: CallFunction (QR Generation)
+        if (stripos($entry, 'CallFuntion:') !== false || stripos($entry, 'CallFunction:') !== false) {
+            if (preg_match("/\{(.+?)\}/s", $entry, $dataMatch)) {
+                $dictStr = '{' . $dataMatch[1] . '}';
+                
+                $merchantId = '';
+                $txnamt = '';
+                $merchantName = '';
+                
+                if (preg_match("/'merchantId':\s*'([^']+)'/", $dictStr, $m)) $merchantId = $m[1];
+                if (preg_match("/'txnamt':\s*'([^']+)'/", $dictStr, $m)) $txnamt = $m[1];
+                if (preg_match("/'merchantName':\s*'([^']+)'/", $dictStr, $m)) $merchantName = $m[1];
+                
+                if ($merchantId || $txnamt) {
+                    $results[] = [
+                        'Date' => $timestamp,
+                        'Status' => 'QR Request',
+                        'Color' => 'blue',
+                        'InstrId' => $merchantId,
+                        'TxId' => '',
+                        'Amount' => $txnamt,
+                        'CdtrNm' => $merchantName,
+                        'CdtrAcctId' => '',
+                        'DbtrNm' => '',
+                        'DbtrAcctId' => '',
+                        'TxSts' => '',
+                        'Rsn' => 'QR Generation',
+                        'MrchntCtgyCd' => '',
+                        'MsgId' => ''
+                    ];
+                    continue;
+                }
+            }
+        }
+        
+        // TYPE 5: P2M Generate QR
+        if (stripos($entry, 'P2M Generate QR Data:') !== false || stripos($entry, 'P2M QR Return:') !== false) {
             $results[] = [
-                'Date' => $date[1] ?? '',
-                'Status' => $statusText,
-                'Color' => $statusColor,
-                'InstrId' => $instr[1] ?? '',
-                'TxId' => $txid[1] ?? '',
-                'CdtrAcctId' => $cdtrAcct[1] ?? '',
-                'DbtrNm' => $dbtrNm[1] ?? '',
-                'DbtrAcctId' => $dbtrAcct[1] ?? '',
-                'TxSts' => $txsts[1] ?? '',
-                'Rsn' => $rsn[1] ?? '',
-                'MrchntCtgyCd' => $mcc[1] ?? ''
+                'Date' => $timestamp,
+                'Status' => 'QR Generated',
+                'Color' => 'blue',
+                'InstrId' => '',
+                'TxId' => '',
+                'Amount' => '',
+                'CdtrNm' => '',
+                'CdtrAcctId' => '',
+                'DbtrNm' => '',
+                'DbtrAcctId' => '',
+                'TxSts' => '',
+                'Rsn' => 'QR Code Created',
+                'MrchntCtgyCd' => '',
+                'MsgId' => ''
+            ];
+            continue;
+        }
+        
+        // TYPE 6: Other WARNING logs (callbacks, queries, etc.)
+        if (stripos($entry, 'WARNING') !== false && trim($entry) !== '--') {
+            $results[] = [
+                'Date' => $timestamp,
+                'Status' => 'System Log',
+                'Color' => 'gray',
+                'InstrId' => '',
+                'TxId' => '',
+                'Amount' => '',
+                'CdtrNm' => '',
+                'CdtrAcctId' => '',
+                'DbtrNm' => '',
+                'DbtrAcctId' => '',
+                'TxSts' => '',
+                'Rsn' => $logType,
+                'MrchntCtgyCd' => '',
+                'MsgId' => ''
             ];
         }
     }
