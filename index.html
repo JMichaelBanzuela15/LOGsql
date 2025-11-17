@@ -3,105 +3,342 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>LOGS RGBI</title>
-    <link rel="stylesheet" href="css/style.css" />
+    <title>LOGS - Log Parser</title>
+    <link rel="stylesheet" href="css/style.css?v=2" />
   </head>
   <body>
-    <h1>Make your logs readable</h1>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="nav-brand">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <span class="nav-title">LOGS READER</span>
+        </div>
+      </div>
+    </nav>
 
-    <!-- Tab Switcher -->
-    <div class="tabs">
-      <button class="tab-btn active" data-tab="sql">SQL Logs</button>
-      <button class="tab-btn" data-tab="wallet"> DIGIPEP Wallet Logs</button>
-    </div>
+    <!-- Main Container -->
+    <div class="main-container">
+      <header class="page-header">
+        <h1 class="page-title">Make Your Logs Readable</h1>
+        <p class="page-subtitle">Parse and analyze SQL and wallet logs with ease</p>
+      </header>
 
-    <!-- SQL LOGS TAB -->
-    <div id="sql-tab" class="tab-content active">
-      <div class="input-section">
-        <h3>Paste SQL Logs Below:</h3>
-        <textarea id="logInput" placeholder="Paste raw SQL logs here..."></textarea>
-        <button id="formatBtn"> Format Logs</button>
+      <!-- Tab Switcher -->
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="sql">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 7h16M4 12h16M4 17h16"/>
+          </svg>
+          SQL Logs
+        </button>
+        <button class="tab-btn" data-tab="wallet">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12c0 1.2-4.03 6-9 6s-9-4.8-9-6 4.03-6 9-6 9 4.8 9 6z"/>
+            <path d="M12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/>
+          </svg>
+          DIGIPEP Wallet Logs
+        </button>
       </div>
 
-      <hr />
+      <!-- SQL LOGS TAB -->
+      <div id="sql-tab" class="tab-content active">
+        <div class="card input-section">
+          <div class="card-header">
+            <h3>
+              <svg class="section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
+              </svg>
+              Paste Your Raw SQL Logs
+            </h3>
+          </div>
+          <div class="card-body">
+            <textarea id="logInput" placeholder="Paste raw SQL logs here..."></textarea>
+            <button id="formatBtn" class="btn-primary">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
+              </svg>
+              Format Logs
+            </button>
+          </div>
+        </div>
 
-      <div class="upload-section">
-        <h3>Or Upload Log File:</h3>
-        <form id="uploadForm" enctype="multipart/form-data">
-          <input type="file" name="logfile" accept=".txt,.log" />
-          <button type="submit">Upload & Parse</button>
-        </form>
+        <div class="card upload-section">
+          <div class="card-header">
+            <h3>
+              <svg class="section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+              </svg>
+              Or Upload Log File
+            </h3>
+          </div>
+          <div class="card-body">
+            <form id="uploadForm" enctype="multipart/form-data" class="upload-form">
+              <div class="file-input-wrapper">
+                <input type="file" name="logfile" accept=".txt,.log" id="sqlFileInput" />
+                <label for="sqlFileInput" class="file-label">
+                  <svg class="file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                  </svg>
+                  <span class="file-text">Choose file or drag it here</span>
+                </label>
+              </div>
+              <button type="submit" class="btn-primary">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                </svg>
+                Upload & Parse
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Quick Filter Buttons -->
+        <div class="card quick-filters">
+          <div class="card-header">
+            <h3>
+              <svg class="section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 6h18M7 12h10M11 18h2"/>
+              </svg>
+              Quick Filters
+            </h3>
+          </div>
+          <div class="card-body">
+            <div class="filter-buttons">
+              <button class="filter-btn active" onclick="quickFilter('all')">
+                <svg class="filter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 6h18M7 12h10M11 18h2"/>
+                </svg>
+                Show All
+              </button>
+              <button class="filter-btn filter-success-message" onclick="quickFilter('Success Message')">
+                <svg class="filter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 6L9 17l-5-5"/>
+                </svg>
+                Success Message
+              </button>
+              <button class="filter-btn filter-accepted" onclick="quickFilter('Accepted')">
+                <svg class="filter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 6L9 17l-5-5"/>
+                </svg>
+                Accepted
+              </button>
+              <button class="filter-btn filter-failed" onclick="quickFilter('Failed')">
+                <svg class="filter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 6L6 18M6 6l12 12"/>
+                </svg>
+                Failed
+              </button>
+              <button class="filter-btn filter-deadlock" onclick="quickFilter('Deadlock')">
+                <svg class="filter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                Deadlock
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Date Range Filter -->
+        <div class="card date-range-filter">
+          <div class="card-header">
+            <h3>
+              <svg class="section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"/>
+              </svg>
+              Date Range Filter
+            </h3>
+          </div>
+          <div class="card-body">
+            <div class="date-inputs">
+              <div class="date-input-group">
+                <label>From</label>
+                <input type="date" id="startDate" class="date-input">
+              </div>
+              <div class="date-input-group">
+                <label>To</label>
+                <input type="date" id="endDate" class="date-input">
+              </div>
+              <div class="date-actions">
+                <button onclick="filterByDateRange()" class="btn-secondary">
+                  <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                  </svg>
+                  Apply Filter
+                </button>
+                <button onclick="clearDateFilter()" class="btn-secondary">
+                  <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 6L6 18M6 6l12 12"/>
+                  </svg>
+                  Reset
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Search and Action Buttons -->
+        <div class="card action-bar">
+          <div class="card-body">
+            <div class="search-wrapper">
+              <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+              <input type="text" id="searchInput" placeholder="Search logs..." class="search-input" />
+            </div>
+            <div class="action-buttons">
+              <button id="copyBtn" class="btn-secondary">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
+                </svg>
+                Copy
+              </button>
+              <button id="downloadBtn" class="btn-secondary">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                </svg>
+                Download (CSV/PDF)
+              </button>
+              <button id="clearBtn" class="btn-danger">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+                Clear All
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="summary"></div>
+        <div id="output"></div>
       </div>
 
-      <hr />
-
-      <!-- Quick Filter Buttons -->
-      <div class="quick-filters">
-        <button class="filter-btn active" onclick="quickFilter('all')">🔄 Show All</button>
-        <button class="filter-btn filter-success-message" onclick="quickFilter('Success Message')">✅ Success Message</button>
-        <button class="filter-btn filter-accepted" onclick="quickFilter('Accepted')">✅ Accepted</button>
-        <button class="filter-btn filter-failed" onclick="quickFilter('Failed')">❌ Failed</button>
-        <button class="filter-btn filter-deadlock" onclick="quickFilter('Deadlock')">⚠️ Deadlock</button>
-      </div>
-
-      <!-- Date Range Filter -->
-      <div class="date-range-filter">
-        <label>📅 Date Range:</label>
-        <input type="date" id="startDate">
-        <label>to</label>
-        <input type="date" id="endDate">
-        <button onclick="filterByDateRange()">Jump to Date</button>
-        <button onclick="clearDateFilter()">Reset Date</button>
-      </div>
-
-      <!-- Search and Action Buttons -->
-      <div class="action-bar">
-        <input type="text" id="searchInput" placeholder="🔍 Search logs..." />
-        <div class="action-buttons">
-          <button id="copyBtn" class="btn-secondary">📋 Copy</button>
-          <button id="downloadBtn" class="btn-secondary">⬇️ Download CSV</button>
-          <button id="clearBtn" class="btn-danger">🗑️ Clear All</button>
+      <!-- Details Modal -->
+      <div id="detailsModal" class="modal">
+        <div class="modal-overlay" onclick="closeModal()"></div>
+        <div class="modal-container">
+          <div id="modalContent"></div>
         </div>
       </div>
 
-      <div id="summary"></div>
-      <div id="output"></div>
-    </div>
+      <!-- Toast Notification Container -->
+      <div id="toastContainer" class="toast-container"></div>
 
-    <!-- DIGIPEP WALLET LOGS TAB -->
-    <div id="wallet-tab" class="tab-content">
-      <div class="input-section">
-        <h3>Paste DIGIPEP Wallet Logs Below:</h3>
-        <textarea id="walletLogInput" placeholder="Paste DIGIPEP wallet logs here...&#10;&#10;Example:&#10;[2025-11-10 11:20:30] production.DEBUG: CREATE DIGIPEP WALLET FULL REQUEST BODY..."></textarea>
-        <button id="formatWalletBtn"> Format Wallet Logs</button>
-      </div>
-
-      <hr />
-
-      <div class="upload-section">
-        <h3>Or Upload Wallet Log File:</h3>
-        <form id="uploadWalletForm" enctype="multipart/form-data">
-          <input type="file" name="logfile" accept=".txt,.log" />
-          <button type="submit">Upload & Parse</button>
-        </form>
-      </div>
-
-      <hr />
-
-      <!-- Search and Action Buttons -->
-      <div class="action-bar">
-        <input type="text" id="searchWalletInput" placeholder="🔍 Search wallet logs..." />
-        <div class="action-buttons">
-          <button id="copyWalletBtn" class="btn-secondary">📋 Copy</button>
-          <button id="downloadWalletBtn" class="btn-secondary">⬇️ Download CSV</button>
-          <button id="clearWalletBtn" class="btn-danger">🗑️ Clear All</button>
+      <!-- Confirmation Modal -->
+      <div id="confirmModal" class="modal">
+        <div class="modal-overlay" onclick="closeConfirmModal(false)"></div>
+        <div class="confirm-modal-container">
+          <div class="confirm-modal-header">
+            <svg class="confirm-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+            <h3 id="confirmTitle">Confirm Action</h3>
+          </div>
+          <div class="confirm-modal-body">
+            <p id="confirmMessage">Are you sure you want to proceed?</p>
+          </div>
+          <div class="confirm-modal-footer">
+            <button class="btn-secondary" onclick="closeConfirmModal(false)">Cancel</button>
+            <button class="btn-primary" id="confirmOkBtn" onclick="closeConfirmModal(true)">Confirm</button>
+          </div>
         </div>
       </div>
 
-      <div id="walletSummary"></div>
-      <div id="walletOutput"></div>
+      <!-- DIGIPEP WALLET LOGS TAB -->
+      <div id="wallet-tab" class="tab-content">
+        <div class="card input-section">
+          <div class="card-header">
+            <h3>
+              <svg class="section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
+              </svg>
+              Paste DIGIPEP Wallet Logs
+            </h3>
+          </div>
+          <div class="card-body">
+            <textarea id="walletLogInput" placeholder="Paste DIGIPEP wallet logs here...&#10;&#10;Example:&#10;[2025-11-10 11:20:30] production.DEBUG: CREATE DIGIPEP WALLET FULL REQUEST BODY..."></textarea>
+            <button id="formatWalletBtn" class="btn-primary">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
+              </svg>
+              Format Wallet Logs
+            </button>
+          </div>
+        </div>
+
+        <div class="card upload-section">
+          <div class="card-header">
+            <h3>
+              <svg class="section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+              </svg>
+              Or Upload Wallet Log File
+            </h3>
+          </div>
+          <div class="card-body">
+            <form id="uploadWalletForm" enctype="multipart/form-data" class="upload-form">
+              <div class="file-input-wrapper">
+                <input type="file" name="logfile" accept=".txt,.log" id="walletFileInput" />
+                <label for="walletFileInput" class="file-label">
+                  <svg class="file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                  </svg>
+                  <span class="file-text">Choose file or drag it here</span>
+                </label>
+              </div>
+              <button type="submit" class="btn-primary">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                </svg>
+                Upload & Parse
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Search and Action Buttons -->
+        <div class="card action-bar">
+          <div class="card-body">
+            <div class="search-wrapper">
+              <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+              <input type="text" id="searchWalletInput" placeholder="Search wallet logs..." class="search-input" />
+            </div>
+            <div class="action-buttons">
+              <button id="copyWalletBtn" class="btn-secondary">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
+                </svg>
+                Copy
+              </button>
+              <button id="downloadWalletBtn" class="btn-secondary">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                </svg>
+                Download (CSV/PDF)
+              </button>
+              <button id="clearWalletBtn" class="btn-danger">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+                Clear All
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="walletSummary"></div>
+        <div id="walletOutput"></div>
+      </div>
     </div>
 
-    <script src="js/app.js"></script>
+    <script src="js/app.js?v=3"></script>
   </body>
 </html>
