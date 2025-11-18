@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LOGS - Log Parser</title>
-    <link rel="stylesheet" href="css/style.css?v=2" />
+    <link rel="stylesheet" href="css/style.css?v=3" />
   </head>
   <body>
     <!-- Navigation Bar -->
@@ -52,7 +52,7 @@
                 <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
                 <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
               </svg>
-              Paste Your Raw SQL Logs
+              Paste Your Raw SQL Logs (MobaXTerm)
             </h3>
           </div>
           <div class="card-body">
@@ -67,14 +67,20 @@
           </div>
         </div>
 
-        <div class="card upload-section">
+        <div class="card upload-section collapsed" id="sqlUploadCard">
           <div class="card-header">
             <h3>
               <svg class="section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
               </svg>
-              Or Upload Log File
+              Upload SQL Log File
             </h3>
+            <button type="button" class="btn-secondary btn-ghost toggle-upload" data-target="sqlUploadCard" aria-expanded="false">
+              <svg class="toggle-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 9l6 6 6-6"/>
+              </svg>
+              <span class="toggle-label">Show Upload Section</span>
+            </button>
           </div>
           <div class="card-body">
             <form id="uploadForm" enctype="multipart/form-data" class="upload-form">
@@ -272,14 +278,20 @@
           </div>
         </div>
 
-        <div class="card upload-section">
+        <div class="card upload-section collapsed" id="walletUploadCard">
           <div class="card-header">
             <h3>
               <svg class="section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
               </svg>
-              Or Upload Wallet Log File
+              Upload Wallet Log File
             </h3>
+            <button type="button" class="btn-secondary btn-ghost toggle-upload" data-target="walletUploadCard" aria-expanded="false">
+              <svg class="toggle-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 9l6 6 6-6"/>
+              </svg>
+              <span class="toggle-label">Show Upload Section</span>
+            </button>
           </div>
           <div class="card-body">
             <form id="uploadWalletForm" enctype="multipart/form-data" class="upload-form">
@@ -339,6 +351,6 @@
       </div>
     </div>
 
-    <script src="js/app.js?v=3"></script>
+    <script src="js/app.js?v=5"></script>
   </body>
 </html>

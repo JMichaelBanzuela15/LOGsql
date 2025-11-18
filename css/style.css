@@ -198,6 +198,11 @@ body {
   padding: 20px 24px;
   border-bottom: 1px solid var(--border-color);
   background: var(--bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .card-header h3 {
@@ -218,6 +223,52 @@ body {
 
 .card-body {
   padding: 24px;
+}
+
+.upload-section.collapsed .card-body {
+  display: none;
+}
+
+.upload-section.collapsed {
+  border-style: dashed;
+  border-color: var(--border-color);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px dashed var(--border-color);
+}
+
+.btn-ghost:hover {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border-color: var(--primary-color);
+}
+
+.toggle-upload {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.toggle-upload.active {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  background: rgba(81, 92, 230, 0.08);
+}
+
+.toggle-upload .toggle-arrow {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.2s ease;
+}
+
+.upload-section:not(.collapsed) .toggle-upload .toggle-arrow {
+  transform: rotate(180deg);
 }
 
 /* ========== INPUT SECTIONS ========== */

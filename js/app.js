@@ -109,6 +109,36 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   });
 });
 
+// Upload section toggles
+function initializeUploadToggles() {
+  document.querySelectorAll('.toggle-upload').forEach((button) => {
+    const targetId = button.dataset.target;
+    const targetCard = document.getElementById(targetId);
+
+    if (!targetCard) return;
+
+    const label = button.querySelector('.toggle-label');
+
+    const updateState = () => {
+      const isCollapsed = targetCard.classList.contains('collapsed');
+      if (label) {
+        label.textContent = isCollapsed ? 'Show Upload' : 'Hide Upload';
+      }
+      button.setAttribute('aria-expanded', (!isCollapsed).toString());
+      button.classList.toggle('active', !isCollapsed);
+    };
+
+    button.addEventListener('click', () => {
+      targetCard.classList.toggle('collapsed');
+      updateState();
+    });
+
+    updateState();
+  });
+}
+
+initializeUploadToggles();
+
 // ========== LOADING SPINNER ==========
 
 function showSpinner(message = "Processing...") {
@@ -908,6 +938,7 @@ function downloadWalletAsCSV() {
   a.download = `wallet_logs_${new Date().toISOString().split('T')[0]}.csv`;
   a.click();
   URL.revokeObjectURL(a.href);
+  showToast('CSV file downloaded successfully!', 'success', 'Download Complete');
 }
 
 function downloadWalletAsPDF() {
