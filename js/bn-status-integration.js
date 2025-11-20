@@ -1,4 +1,4 @@
-// ========== BN STATUS CODE INTEGRATION ==========
+// ========== BN STATUS CODE INTEGRATION WITH AUTO-SCROLL ==========
 // This file integrates BN status code lookup into the existing viewDetails modal
 // Place this script AFTER app.js and status-codes.js in your HTML
 
@@ -8,10 +8,16 @@
   // Store the original viewDetails function
   const originalViewDetails = window.viewDetails;
   
-  // Override viewDetails to include BN status lookup
+  // Override viewDetails to include BN status lookup AND auto-scroll
   window.viewDetails = function(index) {
     const row = fullDataStore[index];
     if (!row) return;
+
+    // ✨ AUTO SCROLL TO TOP - Smooth animation
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
 
     const modal = document.getElementById('detailsModal');
     const modalContent = document.getElementById('modalContent');
@@ -124,6 +130,15 @@
     modalContent.innerHTML = detailsHtml;
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
+    document.body.classList.add('modal-open'); // Lock background scroll
+  };
+  
+  // Override closeModal to unlock scroll
+  window.closeModal = function() {
+    const modal = document.getElementById('detailsModal');
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+    document.body.classList.remove('modal-open'); // Unlock background scroll
   };
   
   // Also update copyDetails to include BN status information
@@ -161,5 +176,24 @@ Message ID: ${row.MsgId || '—'}`;
     showToast('Details copied to clipboard (including BN status)!', 'success', 'Copied');
   };
   
-  console.log('✅ BN Status Code Integration loaded successfully!');
+  // Also handle wallet details with scroll
+  if (window.viewWalletDetails) {
+    const originalViewWalletDetails = window.viewWalletDetails;
+    
+    window.viewWalletDetails = function(index) {
+      // ✨ AUTO SCROLL TO TOP for wallet details too
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+      
+      // Call original function
+      originalViewWalletDetails(index);
+      
+      // Lock background scroll
+      document.body.classList.add('modal-open');
+    };
+  }
+  
+  console.log('✅ BN Status Code Integration with Auto-Scroll loaded successfully!');
 })();
