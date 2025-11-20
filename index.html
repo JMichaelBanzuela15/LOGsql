@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LOGS - Log Parser</title>
     <link rel="stylesheet" href="css/style.css?v=3" />
+    <link rel="stylesheet" href="css/status-codes.css" />
+    <link rel="stylesheet" href="css/responsive-enhancements.css" />
   </head>
   <body>
     <!-- Navigation Bar -->
@@ -24,7 +26,6 @@
       <header class="page-header">
         <h1 class="page-title">Make Your Logs Readable</h1>
         <p class="page-subtitle">Parse and analyze SQL and wallet logs with ease</p>
-        <p class="page-subtitle">v.1.0 - John Michael Banzuela</p>
       </header>
 
       <!-- Tab Switcher -->
@@ -335,7 +336,7 @@
                 <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
                 </svg>
-                Download (For CSV click CANCEL /For PDF click Download) 
+                Download (CSV/PDF)
               </button>
               <button id="clearWalletBtn" class="btn-danger">
                 <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -351,7 +352,9 @@
         <div id="walletOutput"></div>
       </div>
     </div>
-    <script src="js/status-codes.js"></script>
+
     <script src="js/app.js?v=5"></script>
+    <script src="js/status-codes.js"></script>
+    <script src="js/bn-status-integration.js"></script>
   </body>
 </html>
